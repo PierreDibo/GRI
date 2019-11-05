@@ -12,7 +12,6 @@ import java.util.Arrays;
  *
  * @author dibop
  */
-@SuppressWarnings("NonPublicExported")
 public class TP2 {
 
     public static int compteur(Graphe G, String filename) {
@@ -179,8 +178,14 @@ public class TP2 {
         System.out.println("Nombre de sommets : " + (g.n));
         System.out.println("Nombre d'aretes : " + g.m);
 
+        Matrice matrix = new Matrice(g.n, g.n);
+        int[][] graphe = new int[g.n][g.n];
+        g.makeGraphe(graphe);
+
         System.out.println(Arrays.toString(g.V));
 
+        //g.floydWarshall(matrix);
+        //System.out.println(g.floydWarshall(matrix));
         System.out.println("Mémoire allouée : " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) + " octets");
     }
 
