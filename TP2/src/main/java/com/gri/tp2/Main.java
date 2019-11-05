@@ -1,3 +1,4 @@
+package com.gri.tp2;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -7,30 +8,36 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Arrays;
+import java.util.Iterator;
+import org.jgrapht.alg.scoring.BetweennessCentrality;
+import org.jgrapht.graph.DefaultUndirectedGraph;
+import org.jgrapht.util.SupplierUtil;
 
 /**
- * @author Aillerie Anthony
+ *
  * @author dibop
  */
-public class TP2 {
+public class Main {
+
+    public static final int CORRECTEUR_BET = 2;
 
     public static int compteur(Graphe G, String filename) {
         int compteur = 0;
-        try ( BufferedReader reader = new BufferedReader(new FileReader(new File(filename)))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(new File(filename)))) {
             while (reader.readLine() != null) {
                 compteur++;
             }
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(TP2.class.getName()).log(Level.SEVERE, "Erreur entree/sortie sur" + filename, ex);
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Erreur entree/sortie sur" + filename, ex);
         } catch (IOException ex) {
-            Logger.getLogger(TP2.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
         return compteur;
     }
 
     public static int matrice(Graphe g, String filename, int[][] lus) {
         int l = 0;
-        try ( BufferedReader reader = new BufferedReader(new FileReader(new File(filename)))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(new File(filename)))) {
             while (true) {
                 String line = reader.readLine();
                 if (line == null) // end of file
@@ -69,9 +76,9 @@ public class TP2 {
                 l++;
             }
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(TP2.class.getName()).log(Level.SEVERE, "Erreur entree/sortie sur" + filename, ex);
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Erreur entree/sortie sur" + filename, ex);
         } catch (IOException ex) {
-            Logger.getLogger(TP2.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
         return l;
     }
@@ -165,7 +172,7 @@ public class TP2 {
             return;
         }*/
         //String filename = args[0];
-        String filename = "test.txt";
+        String filename = "gr1.txt";
         Graphe g = new Graphe();
         int compteur = compteur(g, filename);
         int[][] lus = new int[compteur][2];
@@ -175,21 +182,39 @@ public class TP2 {
         tableauxAdjacence(g, lus, l);
         deboublonage(g);
 
-        System.out.println("Nombre de sommets : " + (g.n));
-        System.out.println("Nombre d'aretes : " + g.m);
+        DefaultUndirectedGraph graphe = new DefaultUndirectedGraph(SupplierUtil.createIntegerSupplier(), SupplierUtil.createIntegerSupplier(), true);
+        for (Sommet s : g.V) {
+            graphe.addVertex(s.num);
+        }
 
-        Matrice matrix = new Matrice(g.n, g.n);
-        int[][] graphe = new int[g.n][g.n];
-        System.out.println(Arrays.toString(g.V));
-        //g.makeGraphe(graphe);
-        //g.printSolution(graphe);
-        //System.out.println(Arrays.toString(g.V));
-        //g.floydWarshall(graphe);
-        
-        g.findShortestPaths();
+        for (Sommet s : g.V) {
+            if (s.adj != null) {
+                for (int i = 0; i < s.adj.length; i++) {
+                    graphe.addEdge(s.num, s.adj[i]);
+                }
+            }
+        }
 
-        //g.floydWarshall(matrix);
-        //System.out.println(g.floydWarshall(matrix));
+        System.out.println("Nombre de sommets : " + graphe.vertexSet().size());
+        System.out.println("Nombre d'aretes : " + graphe.edgeSet().size());
+        BetweennessCentrality centrality = new BetweennessCentrality(graphe, true);
+
+        Iterator<Integer> iter = graphe.vertexSet().iterator();
+        if (args.length > 1) {
+            for (int i = 1; i < args.length; i++) {
+                int node = Integer.parseInt(args[i]);
+                if (node > graphe.vertexSet().size()) {
+                    System.out.println(node + " : Numéro du sommet invalide");
+                } else {
+                    System.out.println(node + " : " + centrality.getVertexScore(node) * CORRECTEUR_BET);
+                }
+            }
+        } else {
+            while (iter.hasNext()) {
+                Integer i = iter.next();
+                System.out.println(i + " : " + centrality.getVertexScore(i) * CORRECTEUR_BET);
+            }
+        }
         System.out.println("Mémoire allouée : " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) + " octets");
     }
 

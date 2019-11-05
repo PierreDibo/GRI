@@ -1,10 +1,9 @@
-
-
+package com.gri.tp2;
 
 import java.util.Arrays;
 
 /**
- * @author Aillerie Anthony
+ *
  * @author dibop
  */
 public class Sommet {
