@@ -161,12 +161,12 @@ public class TP2 {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        if (args.length == 0) {
+        /*if (args.length == 0) {
             System.err.println("Usage : java TP2 nomFichier.txt [i sommet]*");
             return;
-        }
-        String filename = args[0];
-        //String filename = "gr1.txt";
+        }*/
+        //String filename = args[0];
+        String filename = "gr1.txt";
         Graphe g = new Graphe();
         int compteur = compteur(g, filename);
         int[][] lus = new int[compteur][2];

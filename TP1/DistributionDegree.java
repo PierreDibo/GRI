@@ -7,6 +7,8 @@ import java.util.TreeMap;
  */
 public class DistributionDegree extends TreeMap<Integer, Long> {
 
+    //private static final long serialVersionUID = -1884466897405388867L;
+
     @Override
     public String toString() {
         String s = "";

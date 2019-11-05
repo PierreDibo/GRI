@@ -1,0 +1,4 @@
+https://www.baeldung.com/java-interpolation-search
+
+ 3 21 31 40 56 67 72 76 83 88 98
+ 3 9 21 26 31 39 40 51 56 65 67 69 72 73 76 79 83 84 88 94 98
