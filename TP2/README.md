@@ -57,6 +57,13 @@ Maven Run Command
 Maven's exec plugin can be used to run any of the main class generated in the target folder. Here the main class being com.mycompany.App
 
 ```sh
+#execute the project on gr1.txt
+make all filename=nomfichier
+```
+
+ou
+
+```sh
 #execute the project
-mvn exec:java -Dexec.mainClass=com.gri.tp2.Main
+time mvn exec:java -Dexec.mainClass=mvn exec:java -Dexec.mainClass=com.gri.tp2.Main -Dexec.args="filename [nodes i...n]"
 ```

@@ -105,7 +105,6 @@ public class Main {
         if (nbloop > 0) {
             System.out.println(nbloop + " boucles ont été ignorées");
         }
-        //System.out.println(Arrays.toString(g.V));
     }
 
     public static void tableauxAdjacence(Graphe g, int[][] lus, int l) {
@@ -167,12 +166,12 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        /*if (args.length == 0) {
-            System.err.println("Usage : java TP2 nomFichier.txt [i sommet]*");
+        if (args.length == 0) {
+            System.err.println("Usage : time mvn exec:java -Dexec.mainClass=mvn exec:java -Dexec.mainClass=com.gri.tp2.Main -Dexec.args=\"filename [nodes i...n]\"");
             return;
-        }*/
-        //String filename = args[0];
-        String filename = "gr1.txt";
+        }
+        String filename = args[0];
+
         Graphe g = new Graphe();
         int compteur = compteur(g, filename);
         int[][] lus = new int[compteur][2];
