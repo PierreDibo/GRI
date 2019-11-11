@@ -1,5 +1,7 @@
-package com.gri.tp2;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  *
@@ -11,6 +13,7 @@ public class Graphe {
     public int n, m, dmax, somdmax;
     public Sommet[] V;
     int[][] distance;
+    HashSet<Tuple> pairs;
 
     public void makeGraphe(int[][] graphe) {
         for (int i = 0; i < graphe.length; i++) {
@@ -87,7 +90,8 @@ public class Graphe {
         }
     }
 
-    public Sommet[] preds(Sommet s, Sommet t, int[] visite) {
+    public Sommet[] preds(Sommet s, Sommet t) {
+        ArrayList<Tuple> ens = new ArrayList<>();
         Sommet[] rslt = new Sommet[distance[s.num][t.num]];
         int index = 0;
         if (V[s.num].adj != null) {
@@ -102,7 +106,7 @@ public class Graphe {
         return rslt;
     }
 
-    private int npcc(Sommet s, Sommet t) {
+    private int np(Sommet s, Sommet t) {
         int distST = distance[s.num][t.num];
         int rslt = 0;
         switch (distST) {
@@ -115,7 +119,7 @@ public class Graphe {
             default:
                 for (int i = 0; i < distance[s.num].length; i++) {
                     if (distance[s.num][i] + 1 == distance[s.num][t.num]) {
-                        rslt += 1 + npcc(s, V[i]);
+                        rslt += 1 + np(s, V[i]);
                     }
                 }
                 break;
@@ -124,8 +128,22 @@ public class Graphe {
         return rslt;
     }
 
+    private int npcc(Sommet s, Sommet t) {
+        int rslt = 0;
+        if (distance[s.num][t.num] == 1) {
+            return 1;
+        } else {
+            for (int i = 0; i < distance[s.num].length; i++) {
+                if (distance[s.num][i] + 1 == distance[s.num][t.num]) {
+                    rslt += 1 + npcc(s, V[i]);
+                }
+            }
+            return rslt;
+        }
+    }
+
     private int npccs(Sommet s, Sommet v, Sommet t) {
-        return npcc(s, v) * npcc(v, t);
+        return np(s, v) * np(v, t);
     }
 
     private int beetweeness(Sommet s, Sommet v, Sommet t) {
@@ -133,11 +151,38 @@ public class Graphe {
             return 0;
         } else {
             int den = npccs(s, v, t);
-            int num = npcc(s, t);
+            int num = np(s, t);
 
             return num == 0 ? 0 : den / num;
         }
 
+    }
+
+    public double bet(Sommet v) {
+        double rslt = 1.0;
+
+        /*Iterator<Tuple> iter = pairs.iterator();
+        while (iter.hasNext()) {
+            Tuple t = iter.next();
+            if (t.x.num != t.y.num && t.x.num != v.num && t.y.num != v.num) {
+                rslt += beetweeness(t.x, v, t.y);
+            }
+        }*/
+
+        for (int i = 0; i < V.length; i++) {
+            Sommet s, t;
+            if ((s = V[i]).num == v.num) {
+                continue;
+            }
+            for (int j = 0; j < V.length; j++) {
+                if (i == j || (t = V[i]).num == v.num) {
+                    continue;
+                }
+                rslt += beetweeness(s, v, t);
+
+            }
+        }
+        return rslt == 0 ? 0 : rslt / ((n - 1) * (n - 2));
     }
 
 }

@@ -7,3 +7,17 @@ TP1/state/
 /TP2/dist/
 TP2/src/email-Eu-core.txt
 TP2/src/email-Eu-core.txt.gz
+/TP34/nbproject/private/
+*.class
+TP34/src/Wiki-Vote.txt
+TP34/src/email-Eu-core.txt
+TP34/src/facebook_combined.txt
+TP34/src/as20000102.txt
+TP34/email-Eu-core.clu
+TP34/facebook_combined.clu
+TP34/src/as20000102.clu
+TP34/src/email-Eu-core.clu
+TP34/as20000102.clu
+TP34/src/facebook_combined.clu
+TP34/src/Wiki-Vote.clu
+TP34/Wiki-Vote.clu
