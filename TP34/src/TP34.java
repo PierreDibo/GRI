@@ -14,6 +14,8 @@ import java.util.Arrays;
  * @author dibop
  */
 public class TP34 {
+    
+    public static Graphe g = new Graphe();
 
     public static int compteur(String nomFichier) {
         int compteur = 0;
@@ -175,18 +177,18 @@ public class TP34 {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        if (args.length != 3) {
+        /*if (args.length != 3) {
             System.err.println("Usage : java TP2 algo fichierGraphe.txt fichierCluster.clu");
             return;
         }
         String algo = args[0];
         String fichierGraphe = args[1];
-        String fichierCluster = args[2];
-        /*String fichierGraphe = "exemple.txt";
-        String fichierCluster = "facebook_combined.clu";
-        String algo = "modu";*/
+        String fichierCluster = args[2];*/
+        String fichierGraphe = "exemple.txt";
+        String fichierCluster = "exemple_2.clu";
+        String algo = "modu";
 
-        Graphe g = new Graphe();
+        
         Cluster cluster = new Cluster();
         int compteur = compteur(fichierGraphe);
         int[][] lus = new int[compteur][2];
@@ -201,8 +203,27 @@ public class TP34 {
 
         System.out.println("Nombre de sommets : " + (g.n));
         System.out.println("Nombre d'aretes : " + g.m);
+
+        //int[][] graphe = new int[g.n][g.n];
+        //g.makeGraphe(graphe);
+        //g.floydWarshall(graphe);
         //System.out.println(Arrays.toString(g.V));
         //System.out.println("Cluster :\n" + Arrays.deepToString(cluster.t));
+        //g.printSolution(g.distance);
+        switch (algo) {
+            case "modu":
+                Newman.modularite(g, cluster);
+                break;
+            case "paire":
+                System.err.println("commande non implémentée");
+                return;
+            case "louvain":
+                System.err.println("commande non implémentée");
+                return;
+            default:
+                System.err.println("commande inexistante");
+                return;
+        }
 
         System.out.println("Mémoire allouée : " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) + " octets");
     }
