@@ -1,4 +1,7 @@
 
+import java.util.HashMap;
+
+
 /**
  *
  * @author dibop
@@ -9,6 +12,7 @@ public class Graphe {
     public int n, m, dmax, somdmax;
     public Sommet[] V;
     int[][] distance;
+    public HashMap<Integer, Integer[]> hash;
 
     public void makeGraphe(int[][] graphe) {
         for (int i = 0; i < graphe.length; i++) {

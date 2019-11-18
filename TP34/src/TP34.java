@@ -8,18 +8,19 @@ import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  *
  * @author dibop
  */
 public class TP34 {
-    
+
     public static Graphe g = new Graphe();
 
     public static int compteur(String nomFichier) {
         int compteur = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader(new File(nomFichier)))) {
+        try ( BufferedReader reader = new BufferedReader(new FileReader(new File(nomFichier)))) {
             while (reader.readLine() != null) {
                 compteur++;
             }
@@ -33,7 +34,7 @@ public class TP34 {
 
     public static int matrice(Graphe g, String filename, int[][] lus) {
         int l = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader(new File(filename)))) {
+        try ( BufferedReader reader = new BufferedReader(new FileReader(new File(filename)))) {
             while (true) {
                 String line = reader.readLine();
                 if (line == null) // end of file
@@ -159,12 +160,14 @@ public class TP34 {
         }
     }
 
-    public static void faireCluster(String nomFichier, Cluster cluster) {
+    public static void faireCluster(String nomFichier, Partition part) {
         int ligne = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader(new File(nomFichier)))) {
+        try ( BufferedReader reader = new BufferedReader(new FileReader(new File(nomFichier)))) {
             for (String line; (line = reader.readLine()) != null;) {
                 String[] strings = line.split("\\s+");
-                cluster.t[ligne++] = Arrays.stream(strings).mapToInt(Integer::parseInt).toArray();
+                int[] clust = Arrays.stream(strings).mapToInt(Integer::parseInt).toArray();
+                //System.out.println(Arrays.toString(clust));
+                part.c[ligne++] = new Cluster(clust);
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(TP34.class.getName()).log(Level.SEVERE, "Erreur entree/sortie sur" + nomFichier, ex);
@@ -185,11 +188,10 @@ public class TP34 {
         String fichierGraphe = args[1];
         String fichierCluster = args[2];*/
         String fichierGraphe = "exemple.txt";
-        String fichierCluster = "exemple_2.clu";
+        String fichierCluster = "exemple_best.clu";
         String algo = "modu";
 
-        
-        Cluster cluster = new Cluster();
+        Partition part = new Partition();
         int compteur = compteur(fichierGraphe);
         int[][] lus = new int[compteur][2];
         int l = matrice(g, fichierGraphe, lus);
@@ -198,21 +200,24 @@ public class TP34 {
         tableauxAdjacence(g, lus, l);
         deboublonage(g);
 
-        cluster.t = new int[compteur(fichierCluster)][];
-        faireCluster(fichierCluster, cluster);
+        part.c = new Cluster[compteur(fichierCluster)];
+        faireCluster(fichierCluster, part);
 
         System.out.println("Nombre de sommets : " + (g.n));
         System.out.println("Nombre d'aretes : " + g.m);
-
-        //int[][] graphe = new int[g.n][g.n];
-        //g.makeGraphe(graphe);
-        //g.floydWarshall(graphe);
-        //System.out.println(Arrays.toString(g.V));
-        //System.out.println("Cluster :\n" + Arrays.deepToString(cluster.t));
-        //g.printSolution(g.distance);
+        //System.out.println(Arrays.deepToString(part.c));
+        g.hash = new HashMap<>();
+        for (Sommet s : g.V) {
+            if (s.adj == null) {
+                g.hash.put(s.num, null);
+            } else {
+                g.hash.put(s.num, Arrays.stream(s.adj).boxed().toArray(Integer[]::new));
+            }
+        }
+        
         switch (algo) {
             case "modu":
-                Newman.modularite(g, cluster);
+                Newman.modularite(g, part);
                 break;
             case "paire":
                 System.err.println("commande non implémentée");

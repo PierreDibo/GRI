@@ -1,0 +1,285 @@
+/* Corrige du TP 2 de GRI 2019, M2 Info Paris Diderot. Copyright Fabien de Montgolfier  */
+
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Arrays; // sort()
+import java.util.ArrayDeque;
+
+class Sommet {
+    int num ; // nom numéro pour débug seulement
+    int degre; // son degré.
+    int []adj; // tableau d'adjacence. une case = un numero de voisin. sa longueur est degré
+    int coul; // 0=existe pas 1=non visite par ParcoursLargeur 2=dans la file du PL 3=visite par PL
+    Sommet(int i) {
+	this.num = i;
+	this.degre =0;
+	this.coul=0;
+    }
+} 
+
+class Graphe { 
+    int n;      // nombre de sommets
+    int m;      // nombre d'aretes
+    int dmax;   // degre max d'un sommet
+    int somdmax;   // numero du premier sommet atteignant le degré maximum
+    Sommet[] V; // tableau des sommets. De taille n+1 normalement
+    int[][] dist; // la matrice des distances. Ouille ouille l'espace mémoire !
+    int[][] npcc; // le nombre de précédesseurs. Ouille mémoire aussi.
+}  // pas de constructeur on affectera tous les champs plus tard
+
+
+public class TP2 {
+    public static void lecture(Graphe G, String filename) {
+	// lecture du graphe, recopiée du TP1 
+	
+
+	// passe 1 : compte les lignes
+	int compteur = 0; // sera le nombre de lignes du fichier
+	try {
+	    BufferedReader read = new BufferedReader(new FileReader(filename));
+	    while (read.readLine() != null)
+		compteur++;
+	    read.close(); 
+	}  catch (IOException e) {
+	    System.out.println("Erreur entree/sortie sur "+filename);
+	    System.exit(1);
+	}
+
+	// Passe 2 : lit le fichier et construit un tableau
+	int l = 0;   // nombre de lignes d'aretes déjà lues
+	int[][] lus = new int[compteur][2];
+	try {
+	    BufferedReader read = new BufferedReader(new FileReader(filename));
+	    
+	    while(true) {
+		String line = read.readLine();
+		if(line==null) // end of file
+		    break;
+		if(line.charAt(0) == '#') {
+		    // System.out.println(line); // affichage de la ligne de commentaire
+		    continue;
+		}
+		int a = 0;
+		for (int pos = 0; pos < line.length(); pos++)
+		    {
+			char c = line.charAt(pos);
+			if(c==' ' || c == '\t')
+			    {
+				if(a!=0)
+				    lus[l][0]=a;
+				a=0;
+				continue;
+			    }
+			if(c < '0' || c > '9')
+			    {
+				System.out.println("Erreur format ligne "+l+"c = "+c+" valeur "+(int)c);
+				System.exit(1);
+			    }
+			a = 10*a + c - '0';
+		    }
+		lus[l][1]=a;
+		if(G.n<1+lus[l][0]) // au passage calcul du numéro de sommet max
+		    G.n = 1+lus[l][0];
+		if(G.n<1+lus[l][1]) // au passage calcul du numéro de sommet max
+		    G.n = 1+lus[l][1];
+		l++;
+	    }
+	    read.close(); // dernier close() le fichier d'entrée ne sera plus rouvert
+	}  catch (IOException e) {
+	    System.out.println("Erreur entree/sortie sur "+filename);
+	    System.exit(1);
+	}
+
+	// passe 3 : alloue les sommets et calcule leur degre (sans tenir compte des doublons)
+	int nbloop = 0;
+	G.V = new Sommet[G.n];
+	for(int i=0;i<G.n;i++)
+	    G.V[i]=new Sommet(i);
+
+	for(int i = 0; i< l; i++)
+	    {
+		int x, y; // juste pour la lisibilité
+		x = lus[i][0];
+		y = lus[i][1];
+		if(x==y ) { // nous ignorons les boucles
+		    nbloop++;
+		    continue;
+		}
+		    
+		(G.V[x].degre)++; // arete x--y augmente le degre de x 
+		(G.V[y].degre)++; // ...et celui de y 
+	    }
+	if(nbloop > 0)
+	    System.out.println(nbloop + " boucles ont été ignorées");
+
+	// tpasse 4 :  ajoute les aretes. 
+	// d'abord allouons les tableaux d'adjacance
+	for(int i=0;i<G.n;i++) {
+	    if(G.V[i].degre>0)  {
+		G.V[i].adj = new int[G.V[i].degre];
+		G.V[i].coul = 1; // couleur des sommets qui existent, c'est-à-dire ont des voisins
+	    }
+	    G.V[i].degre=0; // on remet le degre a zero car degre pointe la première place libre où insérer un élément pour la troisième passe
+	}
+
+	for(int i = 0; i< l; i++)
+	    {
+		int x, y; // juste pour la lisibilité
+		x = lus[i][0];
+		y = lus[i][1];
+		if(x==y)
+		    continue;
+		G.V[x].adj[G.V[x].degre++] = y;
+		G.V[y].adj[G.V[y].degre++] = x;
+	    }
+	
+	// passe 5 :  deboublonage, calul de m et des degres reels
+	int nbdoubl=0;
+	G.dmax = 0;
+	G.somdmax = 0; 
+	for(int i=0;i<G.n;i++) {
+	    if(G.V[i].degre>0) { 
+		Arrays.sort(G.V[i].adj); 		    // on commence par trier la liste d'adjacance.
+		for(int j= G.V[i].degre-2;j>=0;j--)  
+		    if(G.V[i].adj[j]==G.V[i].adj[j+1]) {    // du coup les doublons deviennent consécutifs 
+			// oh oh un doublon
+			nbdoubl++;
+			// on echange le doublon avec le dernier element que l'on supprime
+			// boucle de droite a gauche pour eviter de deplacer un autre doublon
+			G.V[i].adj[j+1]=G.V[i].adj[G.V[i].degre-1];
+			G.V[i].degre--;
+		    }
+	    }
+	    // on calcule le degré max maintenant, et le nombre d'arêtes
+	    if(G.dmax < G.V[i].degre)
+		{
+		    G.dmax =  G.V[i].degre;
+		    G.somdmax = i; // on sait qui atteint le degré max
+		}
+	    G.m+=G.V[i].degre;
+	}
+	    
+	// on a compté chaque arête deux fois et chaqyue doublon aussi
+	G.m/=2;
+	nbdoubl /= 2;
+	
+	if(nbdoubl >0)
+	    System.out.println(nbdoubl+" doublons ont ete supprimes");
+    }
+
+
+    public static void PLC(Graphe G) {
+	// parcours en largeur complet du graphe G. Remplit la matrice de distances
+
+	    
+	ArrayDeque<Integer> file = new ArrayDeque<Integer>(); // file du parcours. On aurait pu faire <Sommet> aussi.
+	for(int d=0;d<G.n;d++){
+	    if(G.V[d].coul==0) // le sommet n'a aucun voisin
+		continue;
+
+	    // remttre les couleurs à 1 (blanc)
+	    for(int i=0;i<G.n;i++)
+		if(G.V[i].coul==3)
+		    G.V[i].coul=1;
+	    
+	    file.add(d); // file = (D)
+	    G.dist[d][d]=0; // D a distance 0 de lui-meme
+	    G.npcc[d][d]=0; // ne servira pas normalement
+	    while(!file.isEmpty()) { 
+		int x = file.poll(); // extraire tete
+		G.V[x].coul=3; // noir 
+		int i;
+		for(i=0;i<G.V[x].degre;i++) { // parcours des voisins
+		    int y = G.V[x].adj[i];
+		    if(G.V[y].coul==1) { // si blanc (et existe. coul==0 si inexistant)
+			G.V[y].coul=2; // gris
+			file.add(y);
+			G.dist[d][y] = 1+G.dist[d][x];
+		    }
+		    if(G.V[y].coul==2) {
+			if(d==x)
+			    G.npcc[d][y]=1;
+			else if(G.dist[d][y] == 1+G.dist[d][x])
+			    G.npcc[d][y]+=G.npcc[d][x];
+			// else rien
+		    }
+		}
+	    }
+	}
+    }
+
+    public static double bet(Graphe G, int v) {
+	double betv = 0.0; // bet(v)
+	for(int s=0; s<G.n ; s++) {
+	    if(G.V[s].coul == 0 || s==v || G.npcc[s][v]==0)
+		continue;
+	    for(int t=0; t<G.n ; t++) {
+		double betsvt = 0.0; 		// bet(s,v,t)
+		// On regarde si v est sur un plus court chemin entre s et t
+		if(G.V[t].coul==0 || s==t || v==t ||  G.npcc[s][t]==0 ||  G.npcc[v][t]==0 ||  G.dist[s][t] != G.dist[s][v] + G.dist[v][t])
+		    continue;
+		// oui v est au milieu d'un pcc de s à t. Donc
+		betsvt = (G.npcc[s][v] * G.npcc[v][t])/(double)G.npcc[s][t];
+		betv += betsvt; // on ne divise pas encore par 1/(n-1)(n-2) pour limiter les erreurs d'arrondi
+	    }
+	}
+	return betv / ((G.n-1)*(G.n-2));
+    }
+    
+    public static void main(String[] args) {
+	
+	if (args.length < 1) {
+	    System.out.println("Usage : java TP2 nomFichier.txt <sommet sommet ...>");
+	    return;
+	}
+	boolean debug=false;
+	Graphe G = new Graphe(); // le graphe sur lequel on travaille 
+
+	// 1- lecture
+	lecture(G, args[0]);
+
+	// 2 construction de la matrice des distances
+	G.dist = new int[G.n][G.n];
+	G.npcc = new int[G.n][G.n];
+	PLC(G);
+
+	// calculs de betweenness
+	System.out.println("Nombre de sommets : "+(G.n));
+	System.out.println("Nombre d'aretes : "+G.m);
+
+	if(debug){
+	    System.out.println("matrice des npcc :");
+	    for(int i=0; i<G.n; i++) {
+		for(int j=0; j<G.n; j++)
+		    System.out.print(G.npcc[i][j]+" ");
+		System.out.println();
+	}
+	    
+	    System.out.println("matrice des distances :");
+	    for(int i=0; i<G.n; i++) {
+		for(int j=0; j<G.n; j++)
+		    System.out.print(G.dist[i][j]+" ");
+	    System.out.println();
+	    }
+
+	}
+	if(args.length > 1) {
+	    for(int i=1; i<args.length; i++)
+		{
+		    int x = Integer.valueOf(args[i]);
+		    if(x<0 || x>= G.n)
+			System.out.println(x+ " : Numéro de sommet invalide");
+		    else
+		    System.out.println(x+" : "+bet(G,x));
+		}
+	}
+       else
+	   for(int i=0; i<G.n; i++)
+	       System.out.println(i+" : "+bet(G,i));
+    
+	System.out.println("Mémoire allouée : " + (Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) + " octets");
+    }
+}
+

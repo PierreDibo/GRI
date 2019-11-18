@@ -5,5 +5,9 @@
  */
 public class Cluster {
 
-    public int[][] t;
+    public final int[] t;
+    
+    public Cluster(int[] c) {
+        this.t = c;
+    }
 }

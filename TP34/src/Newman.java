@@ -7,15 +7,15 @@ import java.util.Arrays;
  */
 public class Newman {
 
-    public static void modularite(Graphe g, Cluster c) {
+    public static void modularite(Graphe g, Partition p) {
         double rslt = 0.0;
         //Arrays.stream(c.t).map(p -> Double.sum(rslt, new Partition(p).Q()));
-        for (int[] t : c.t) {
+        /*for (int[] t : c.t) {
             double p = new Partition(t).Q();
             //System.out.println(p);
             rslt += p;
-        }
-        System.out.println(rslt);
+        }*/
+        System.out.println(p.Q());
     }
 
     public static double calc(Graphe g, int[] t) {
