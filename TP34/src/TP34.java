@@ -180,16 +180,16 @@ public class TP34 {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        if (args.length != 3) {
+        /*if (args.length != 3) {
             System.err.println("Usage : java TP2 algo fichierGraphe.txt fichierCluster.clu");
             return;
         }
         String algo = args[0];
         String fichierGraphe = args[1];
-        String fichierCluster = args[2];
-        /*String fichierGraphe = "exemple.txt";
-        String fichierCluster = "exemple_best.clu";
-        String algo = "modu";*/
+        String fichierCluster = args[2];*/
+        String fichierGraphe = "Wiki-Vote.txt";
+        String fichierCluster = "Wiki-Vote.clu";
+        String algo = "modu";
 
         Partition part = new Partition();
         int compteur = compteur(fichierGraphe);
