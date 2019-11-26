@@ -4,11 +4,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -20,7 +21,7 @@ public class TP34 {
 
     public static int compteur(String nomFichier) {
         int compteur = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader(new File(nomFichier)))) {
+        try ( BufferedReader reader = new BufferedReader(new FileReader(new File(nomFichier)))) {
             while (reader.readLine() != null) {
                 compteur++;
             }
@@ -34,7 +35,7 @@ public class TP34 {
 
     public static int matrice(Graphe g, String filename, int[][] lus) {
         int l = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader(new File(filename)))) {
+        try ( BufferedReader reader = new BufferedReader(new FileReader(new File(filename)))) {
             while (true) {
                 String line = reader.readLine();
                 if (line == null) // end of file
@@ -162,10 +163,10 @@ public class TP34 {
 
     public static void faireCluster(String nomFichier, Partition part) {
         int ligne = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader(new File(nomFichier)))) {
+        try ( BufferedReader reader = new BufferedReader(new FileReader(new File(nomFichier)))) {
             for (String line; (line = reader.readLine()) != null;) {
                 String[] strings = line.split("\\s+");
-                int[] clust = Arrays.stream(strings).mapToInt(Integer::parseInt).toArray();
+                List<Integer> clust = Arrays.stream(strings).mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
                 //System.out.println(Arrays.toString(clust));
                 part.c[ligne++] = new Cluster(clust);
             }
@@ -187,9 +188,9 @@ public class TP34 {
         String algo = args[0];
         String fichierGraphe = args[1];
         String fichierCluster = args[2];*/
-        String fichierGraphe = "Wiki-Vote.txt";
-        String fichierCluster = "Wiki-Vote.clu";
-        String algo = "modu";
+        String fichierGraphe = "exemple.txt";
+        String fichierCluster = "exemple_1.clu";
+        String algo = "paire";
 
         Partition part = new Partition();
         int compteur = compteur(fichierGraphe);
@@ -209,7 +210,7 @@ public class TP34 {
             if (s.adj == null) {
                 g.hash.put(s.num, null);
             } else {
-                g.hash.put(s.num, Arrays.stream(s.adj).boxed().toArray(Integer[]::new));
+                g.hash.put(s.num, Arrays.stream(s.adj).boxed().collect(Collectors.toList()));
             }
         }
 
@@ -218,7 +219,7 @@ public class TP34 {
                 System.out.println(part.Q());
                 break;
             case "paire":
-                System.err.println("commande non implémentée");
+                part.paire();
                 return;
             case "louvain":
                 System.err.println("commande non implémentée");
