@@ -19,7 +19,7 @@ public class Partition {
 
         for (int i = 0; i < c.t.size(); i++) {
             rsltM += m(c.t, i);
-            rsltV += calcV(TP34.g.V[i].degre);
+            rsltV += calcV(c.t.get(i));
         }
         return c.modu = ((rsltM / 2) / TP34.g.m) - (Math.pow(rsltV, 2.0) / (4 * Math.pow(TP34.g.m, 2.0)));
     }
