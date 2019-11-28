@@ -1,11 +1,9 @@
 
-
-
 import java.util.Arrays;
 
 /**
- *
- * @author dibop
+ * @author Pierre Dibo
+ * @author Aillerie Anthony
  */
 public class Sommet {
 

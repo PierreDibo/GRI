@@ -7,13 +7,12 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- *
- * @author dibop
+ * @author Pierre Dibo
+ * @author Aillerie Anthony
  */
 public class TP34 {
 
@@ -21,7 +20,7 @@ public class TP34 {
 
     public static int compteur(String nomFichier) {
         int compteur = 0;
-        try ( BufferedReader reader = new BufferedReader(new FileReader(new File(nomFichier)))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(new File(nomFichier)))) {
             while (reader.readLine() != null) {
                 compteur++;
             }
@@ -35,7 +34,7 @@ public class TP34 {
 
     public static int matrice(Graphe g, String filename, int[][] lus) {
         int l = 0;
-        try ( BufferedReader reader = new BufferedReader(new FileReader(new File(filename)))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(new File(filename)))) {
             while (true) {
                 String line = reader.readLine();
                 if (line == null) // end of file
@@ -163,7 +162,7 @@ public class TP34 {
 
     public static void faireCluster(String nomFichier, Partition part) {
         int ligne = 0;
-        try ( BufferedReader reader = new BufferedReader(new FileReader(new File(nomFichier)))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(new File(nomFichier)))) {
             for (String line; (line = reader.readLine()) != null;) {
                 String[] strings = line.split("\\s+");
                 List<Integer> clust = Arrays.stream(strings).mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
@@ -181,16 +180,16 @@ public class TP34 {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        /*if (args.length != 3) {
+        if (args.length != 3) {
             System.err.println("Usage : java TP2 algo fichierGraphe.txt fichierCluster.clu");
             return;
         }
         String algo = args[0];
         String fichierGraphe = args[1];
-        String fichierCluster = args[2];*/
-        String fichierGraphe = "exemple.txt";
-        String fichierCluster = "exemple_1.clu";
-        String algo = "paire";
+        String fichierCluster = args[2];
+        /*String fichierGraphe = "exemple.txt";
+        String fichierCluster = "facebook_combined.clu";
+        String algo = "modu";*/
 
         Partition part = new Partition();
         int compteur = compteur(fichierGraphe);
@@ -203,16 +202,6 @@ public class TP34 {
 
         part.c = new Cluster[compteur(fichierCluster)];
         faireCluster(fichierCluster, part);
-
-        g.hash = new HashMap<>();
-
-        for (Sommet s : g.V) {
-            if (s.adj == null) {
-                g.hash.put(s.num, null);
-            } else {
-                g.hash.put(s.num, Arrays.stream(s.adj).boxed().collect(Collectors.toList()));
-            }
-        }
 
         switch (algo) {
             case "modu":
