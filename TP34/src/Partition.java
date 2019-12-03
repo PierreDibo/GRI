@@ -4,9 +4,11 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Pierre Dibo
@@ -29,8 +31,12 @@ public class Partition {
         return rslt;
     }
 
-    public double Q(List<Cluster> l) {
-        return l.stream().map(c1 -> modularite(c1)).reduce(0.0, Double::sum);
+    public double Q(List<Cluster> cm) {
+        return cm.stream().map(c1 -> modularite(c1)).reduce(0.0, Double::sum);
+    }
+
+    public double Q(Cluster[] cm) {
+        return Arrays.stream(cm).map(c1 -> modularite(c1)).reduce(0.0, Double::sum);
     }
 
     public static double m(Cluster c) {
@@ -56,30 +62,33 @@ public class Partition {
     }
 
     public void paire() {
-        TreeSet<Paire> queue = new TreeSet<>(new Comparator<Paire>() {
+        PriorityQueue<Paire> queue = new PriorityQueue<>(new Comparator<Paire>() {
             @Override
             public int compare(Paire o1, Paire o2) {
-                return Double.compare(o1.Q, o2.Q);
+                return Double.compare(o2.Q, o1.Q);
             }
         });
-        HashSet<Paire> tmp = new HashSet<>();
+
         double part = Q();
+
         for (int i = 0; i < c.length; i++) {
             for (int j = i + 1; j < c.length; j++) {
-                tmp.add(new Paire(c[i], c[j]));
+                //List<Cluster> l = Arrays.stream(c).collect(Collectors.toList());
+                Paire p = new Paire(c[i], c[j]);
+                /*l.remove(p.a);
+                l.remove(p.b);
+                l.add(p.m);*/
+                if (!queue.contains(p)) {
+                    Cluster[] ct = Stream.concat(Arrays.stream(c).filter(cl -> !cl.equals(p.a) && !cl.equals(p.b)),
+                            Stream.of(p.m))
+                            .toArray(Cluster[]::new);
+                    p.Q = Q(ct) - part;
+                    queue.add(p);
+                }
             }
         }
 
-        tmp.stream().forEach(p -> {
-            List<Cluster> l = Arrays.stream(c).collect(Collectors.toList());
-            l.remove(p.a);
-            l.remove(p.b);
-            l.add(p.m);
-            p.Q = Q(l) - part;
-            queue.add(p);
-        });
-
-        printIncrementPaire(queue.last());
+        printIncrementPaire(queue.peek());
     }
 
     public void printIncrementPaire(Paire p) {

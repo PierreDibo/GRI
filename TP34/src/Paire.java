@@ -21,6 +21,13 @@ public final class Paire implements Comparable<Paire> {
         this.Q = 0.0;
     }
 
+    public Paire(Cluster c1, Cluster c2, double q) {
+        this.a = c1;
+        this.b = c2;
+        this.m = Cluster.merge(this.a, this.b);
+        this.Q = q;
+    }
+
     public double merge() {
         Cluster merged = Cluster.merge(this.a, this.b);
         double mab = (Partition.m(merged) - (Partition.m(this.a) + Partition.m(this.b))) / TP34.g.m;
@@ -64,5 +71,6 @@ public final class Paire implements Comparable<Paire> {
     public int compareTo(Paire o) {
         return Double.compare(Q, o.Q);
     }
+
 
 }

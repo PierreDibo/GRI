@@ -187,9 +187,9 @@ public class TP34 {
         String algo = args[0];
         String fichierGraphe = args[1];
         String fichierCluster = args[2];
-        /*String fichierGraphe = "exemple.txt";
+        /*String fichierGraphe = "facebook_combined.txt";
         String fichierCluster = "facebook_combined.clu";
-        String algo = "modu";*/
+        String algo = "paire";*/
 
         Partition part = new Partition();
         int compteur = compteur(fichierGraphe);
