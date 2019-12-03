@@ -20,7 +20,7 @@ public class Partition {
     private static final double CARRE = 2.0;
 
     public static double modularite(Cluster c) {
-        return c.modu = ((m(c) / CARRE) / TP34.g.m) - (Math.pow(c.degrees, CARRE) / ((CARRE + CARRE) * Math.pow(TP34.g.m, CARRE)));
+        return c.modu = ((c.m = (m(c) / CARRE) / TP34.g.m)) - (Math.pow(c.degrees, CARRE) / ((CARRE + CARRE) * Math.pow(TP34.g.m, CARRE)));
     }
 
     public double Q() {
@@ -64,6 +64,7 @@ public class Partition {
     public void paire() {
         PriorityQueue<Paire> queue = new PriorityQueue<>((Paire o1, Paire o2) -> Double.compare(o2.Q, o1.Q));
 
+        double part = Q();
         for (int i = 0; i < c.length; i++) {
             for (int j = i + 1; j < c.length; j++) {
                 Paire p = new Paire(c[i], c[j]);
@@ -72,7 +73,11 @@ public class Partition {
                             Stream.of(p.m))
                             .toArray(Cluster[]::new);
                     p.Q = Q(ct) - part;*/
-                    p.Q = modularite(p.m) - p.a.modu - p.b.modu;
+                    /*p.Q = (((m(p.m) / CARRE) / TP34.g.m) - (Math.pow(p.m.degrees, CARRE) / (4 * Math.pow(TP34.g.m, CARRE))))
+                            - (((m(p.a) / CARRE) / TP34.g.m) - (Math.pow(p.a.degrees, CARRE) / (4 * Math.pow(TP34.g.m, CARRE))))
+                            - (((m(p.b) / CARRE) / TP34.g.m) - (Math.pow(p.b.degrees, CARRE) / (4 * Math.pow(TP34.g.m, CARRE))));*/
+                    p.Q = p.merge();
+                    //p.Q = modularite(p.m) - p.a.modu - p.b.modu;
                     queue.add(p);
                 }
             }

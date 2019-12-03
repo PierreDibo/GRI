@@ -11,7 +11,7 @@ import java.util.Objects;
 public final class Cluster {
 
     public final List<Integer> t;
-    public double modu, degrees;
+    public double modu, degrees, m;
 
     public Cluster(List<Integer> c) {
         this.t = c;
