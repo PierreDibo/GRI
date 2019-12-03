@@ -19,7 +19,7 @@ public class Partition {
     public Cluster[] c;
     private static final double CARRE = 2.0;
 
-    private double modularite(Cluster c) {
+    public static double modularite(Cluster c) {
         return c.modu = ((m(c) / CARRE) / TP34.g.m) - (Math.pow(c.degrees, CARRE) / ((CARRE + CARRE) * Math.pow(TP34.g.m, CARRE)));
     }
 
@@ -62,32 +62,24 @@ public class Partition {
     }
 
     public void paire() {
-        PriorityQueue<Paire> queue = new PriorityQueue<>(new Comparator<Paire>() {
-            @Override
-            public int compare(Paire o1, Paire o2) {
-                return Double.compare(o2.Q, o1.Q);
-            }
-        });
-
-        double part = Q();
+        PriorityQueue<Paire> queue = new PriorityQueue<>((Paire o1, Paire o2) -> Double.compare(o2.Q, o1.Q));
 
         for (int i = 0; i < c.length; i++) {
             for (int j = i + 1; j < c.length; j++) {
-                //List<Cluster> l = Arrays.stream(c).collect(Collectors.toList());
                 Paire p = new Paire(c[i], c[j]);
-                /*l.remove(p.a);
-                l.remove(p.b);
-                l.add(p.m);*/
                 if (!queue.contains(p)) {
-                    Cluster[] ct = Stream.concat(Arrays.stream(c).filter(cl -> !cl.equals(p.a) && !cl.equals(p.b)),
+                    /*Cluster[] ct = Stream.concat(Arrays.stream(c).filter(cl -> !cl.equals(p.a) && !cl.equals(p.b)),
                             Stream.of(p.m))
                             .toArray(Cluster[]::new);
-                    p.Q = Q(ct) - part;
+                    p.Q = Q(ct) - part;*/
+                    p.Q = modularite(p.m) - p.a.modu - p.b.modu;
                     queue.add(p);
                 }
             }
         }
 
+        //queue.stream().map(p -> p.Q = p.merge());
+        //queue.stream().map(PriorityQueue::remove);
         printIncrementPaire(queue.peek());
     }
 

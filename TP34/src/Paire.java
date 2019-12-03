@@ -30,10 +30,11 @@ public final class Paire implements Comparable<Paire> {
 
     public double merge() {
         Cluster merged = Cluster.merge(this.a, this.b);
-        double mab = (Partition.m(merged) - (Partition.m(this.a) + Partition.m(this.b))) / TP34.g.m;
-        return (mab - (Math.pow(this.a.degrees + this.b.degrees, CARRE)
+        double mab = (Partition.m(merged) - (Partition.m(this.a) + Partition.m(this.b)));
+        System.out.println(this.a + ", " + this.b);
+        return (Partition.modularite(merged) - Partition.modularite(this.a) + Partition.modularite(this.b));/*(Math.pow(this.a.degrees + this.b.degrees, CARRE)
                 + Math.pow(this.a.degrees, CARRE)
-                + Math.pow(this.b.degrees, CARRE)) / (4 * Math.pow(TP34.g.m, CARRE)));
+                + Math.pow(this.b.degrees, CARRE)) / (4 * Math.pow(TP34.g.m, CARRE)));*/
     }
 
     @Override
@@ -71,6 +72,5 @@ public final class Paire implements Comparable<Paire> {
     public int compareTo(Paire o) {
         return Double.compare(Q, o.Q);
     }
-
 
 }
