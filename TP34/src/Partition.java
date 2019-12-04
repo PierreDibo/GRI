@@ -63,35 +63,43 @@ public class Partition {
 
     public void paire() {
         PriorityQueue<Paire> queue = new PriorityQueue<>((Paire o1, Paire o2) -> Double.compare(o2.Q, o1.Q));
-
         double part = Q();
         for (int i = 0; i < c.length; i++) {
             for (int j = i + 1; j < c.length; j++) {
                 Paire p = new Paire(c[i], c[j]);
-                if (!queue.contains(p)) {
-                    /*Cluster[] ct = Stream.concat(Arrays.stream(c).filter(cl -> !cl.equals(p.a) && !cl.equals(p.b)),
-                            Stream.of(p.m))
-                            .toArray(Cluster[]::new);
-                    p.Q = Q(ct) - part;*/
-                    /*p.Q = (((m(p.m) / CARRE) / TP34.g.m) - (Math.pow(p.m.degrees, CARRE) / (4 * Math.pow(TP34.g.m, CARRE))))
-                            - (((m(p.a) / CARRE) / TP34.g.m) - (Math.pow(p.a.degrees, CARRE) / (4 * Math.pow(TP34.g.m, CARRE))))
-                            - (((m(p.b) / CARRE) / TP34.g.m) - (Math.pow(p.b.degrees, CARRE) / (4 * Math.pow(TP34.g.m, CARRE))));*/
-                    p.Q = p.merge();
-                    //p.Q = modularite(p.m) - p.a.modu - p.b.modu;
+                Paire inQueu;
+                p.Q = p.merge();
+
+                inQueu = queue.peek();
+
+                if (inQueu == null) {
                     queue.add(p);
+                } else {
+                    if(p.Q > inQueu.Q) {
+                        queue.poll();
+                        queue.add(p);
+                    }
                 }
+                /*if (!queue.contains(p)) {
+                    queue.
+                    p.Q = p.merge();//(p.m.modu = p.a.modu + p.b.modu);
+                    queue.add(p);
+                }*/
             }
         }
 
-        //queue.stream().map(p -> p.Q = p.merge());
-        //queue.stream().map(PriorityQueue::remove);
-        printIncrementPaire(queue.peek());
+        //System.out.println("" + part);
+        printIncrementPaire(queue.peek(), part);
+        //printIncrementPaire(r, part);
     }
 
-    public void printIncrementPaire(Paire p) {
+    public void printIncrementPaire(Paire p, double part) {
         printList(p.a.t);
         printList(p.b.t);
-        System.out.println("incrément de modularité " + p.Q);
+        Cluster[] ct = Stream.concat(Arrays.stream(c).filter(cl -> !cl.equals(p.a) && !cl.equals(p.b)),
+                Stream.of(p.m))
+                .toArray(Cluster[]::new);
+        System.out.println("incrément de modularité " + (Q(ct) - part));
     }
 
     private void printList(List<Integer> l) {

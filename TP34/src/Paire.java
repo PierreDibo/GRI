@@ -29,7 +29,7 @@ public final class Paire implements Comparable<Paire> {
     }
 
     public double merge() {
-        double mab = ((Partition.m(this.m) / CARRE) - (this.a.m + this.b.m));
+        double mab = (Partition.m(this.m)) / TP34.g.m;
         return mab - ((Math.pow(this.a.degrees + this.b.degrees, CARRE)
                 + Math.pow(this.a.degrees, CARRE)
                 + Math.pow(this.b.degrees, CARRE)) / (4 * Math.pow(TP34.g.m, CARRE)));
