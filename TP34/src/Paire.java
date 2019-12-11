@@ -1,5 +1,4 @@
 
-import java.util.HashMap;
 
 /**
  * @author Pierre Dibo
@@ -11,7 +10,6 @@ public final class Paire implements Comparable<Paire> {
     public final Cluster b;
     public final Cluster m;
     public double Q;
-    public final HashMap<Integer, Cluster> voisins = new HashMap<>();
 
     //private static final double CARRE = 2.0;
 
@@ -20,8 +18,6 @@ public final class Paire implements Comparable<Paire> {
         this.b = c2;
         this.m = Cluster.merge(this.a, this.b);
         //this.Q = merge();
-        this.voisins.put(this.a.index, a);
-        this.voisins.put(this.b.index, b); 
     }
 
     /*private double merge() {
@@ -39,9 +35,5 @@ public final class Paire implements Comparable<Paire> {
     @Override
     public int compareTo(Paire o) {
         return Double.compare(Q, o.Q);
-    }
-
-    public boolean exists(Paire p2) {
-        return this.voisins.keySet().stream().anyMatch(i -> p2.voisins.containsKey(i));
     }
 }

@@ -15,8 +15,8 @@ public final class Cluster {
     public Double modu = null;
     public double degrees, m;
     public boolean tagged = false;
-    public final HashMap<Integer, Cluster> voisins = new HashMap<>();
-
+    public double Q;
+    
     public Cluster(int s) {
         (this.t = new ArrayList<>()).add(s);
         this.degrees = somDeg(this.t);
@@ -25,10 +25,6 @@ public final class Cluster {
     public Cluster(List<Integer> c) {
         this.t = c;
         this.degrees = somDeg(this.t);
-    }
-
-    public boolean exists(Cluster p2) {
-        return this.voisins.keySet().stream().anyMatch(i -> p2.voisins.containsKey(i));
     }
 
     public int somDeg(List<Integer> l) {

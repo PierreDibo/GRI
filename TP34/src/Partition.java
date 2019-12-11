@@ -78,7 +78,7 @@ public class Partition {
 
     public void paire() {
         double part = Q();
-        Paire p = transition(part);
+        Paire p = transition(part).peek();
         c.remove(p.a);
         c.remove(p.b);
         c.add(p.m);
@@ -88,8 +88,22 @@ public class Partition {
         System.out.println(p.b);
         System.out.println("incrément de modularité :" + (pm.modularite - part));
     }
-
+    
     public void louvain(String filename) {
+        PriorityQueue<Paire> queue;
+        double part = Q();
+        int size = c.size();
+        
+        
+        queue = transition(part);
+ 
+        Paire p = queue.peek();
+        System.out.println(p.a);
+        System.out.println(p.b);
+        System.out.println("Meilleure modularité : " + (p.Q - part));
+    }
+
+    /*public void louvain(String filename) {
         PriorityQueue<PartitionModularite> queue = new PriorityQueue<>((PartitionModularite o1, PartitionModularite o2) -> Double.compare(o2.modularite, o1.modularite));
         double part = Q();
         int size = c.size();
@@ -113,7 +127,7 @@ public class Partition {
         PartitionModularite pm = queue.peek();
         write(filename, pm.clusters);
         System.out.println("Meilleure modularité : " + pm.modularite);
-    }
+    }*/
 
     public boolean write(String path, List<Cluster> cls) {
         try {
@@ -143,8 +157,40 @@ public class Partition {
             System.out.println(p.Q + "\n\n");
         }
     }
+    
+    public PriorityQueue<Paire> transition(double q) {
+        PriorityQueue<Paire> queue = new PriorityQueue<>((Paire o1, Paire o2) -> Double.compare(o2.Q, o1.Q));
 
-    public Paire transition(double q) {
+        for (int i = 0; i < c.size(); i++) {
+            for (int j = i + 1; j < c.size(); j++) {
+                Paire p = new Paire(c.get(i), c.get(j));
+                Paire inQueu;
+                double increment;
+
+                System.out.println(p.m);
+                if (p.m.modu == null) {
+                    modularite(p.m);
+                }
+
+                inQueu = queue.peek();
+                increment = q - p.a.modu - p.b.modu + p.m.modu;
+
+                if (inQueu == null) {
+                    p.Q = increment;
+                    queue.offer(p);
+                } else {
+                    p.Q = increment;
+                    if (p.Q > inQueu.Q) {
+                        queue.poll();
+                        queue.offer(p);
+                    }
+                }
+            }
+        }
+        return queue;
+    }
+
+    /*public Paire transition(double q) {
         PriorityQueue<Paire> queue = new PriorityQueue<>((Paire o1, Paire o2) -> Double.compare(o2.Q, o1.Q));
 
         for (int i = 0; i < c.size(); i++) {
@@ -173,6 +219,6 @@ public class Partition {
             }
         }
         return queue.poll();
-    }
+    }*/
 
 }
