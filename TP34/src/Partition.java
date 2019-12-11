@@ -49,25 +49,20 @@ public class Partition {
 
     }
 
-    public static double modularite(Cluster c, int i) {
-        c.index = i;
-        return c.modu = ((c.m = (m(c) / CARRE) / TP34.g.m)) - (Math.pow(c.degrees, CARRE) / ((CARRE + CARRE) * Math.pow(TP34.g.m, CARRE)));
-    }
-
     public static double modularite(Cluster c) {
         return c.modu = ((c.m = (m(c) / CARRE) / TP34.g.m)) - (Math.pow(c.degrees, CARRE) / ((CARRE + CARRE) * Math.pow(TP34.g.m, CARRE)));
     }
 
     public double Q() {
-        double rslt = 0.0;
-        for (int i = 0; i < c.size(); i++) {
-            rslt += modularite(c.get(i), i);
-        }
-        return modu = rslt;
+        return modu = c.stream().map(c1 -> modularite(c1)).reduce(0.0, Double::sum);
     }
 
     public double Q(List<Cluster> cm) {
         return cm.stream().map(c1 -> modularite(c1)).reduce(0.0, Double::sum);
+    }
+
+    public double QMerged(List<Cluster> cm) {
+        return cm.stream().map(c1 -> c1.modu == null ? modularite(c1) : c1.modu).reduce(0.0, Double::sum);
     }
 
     public static double m(Cluster cluster) {
@@ -83,30 +78,24 @@ public class Partition {
 
     public void paire() {
         double part = Q();
-        ArrayList<Cluster> cl = new ArrayList<>(c);
         Paire p = transition(part);
-        cl.remove(p.a);
-        cl.remove(p.b);
-        cl.add(p.m);
-        PartitionModularite pm = new PartitionModularite(cl, p.Q);
-        if (pm.modularite > part) {
-            System.out.println("incrément de modularité :" + (pm.modularite - part));
-            //System.out.println(pm.toString2());
-        } else {
-            System.out.println("Aucune fusion avec une meilleur modularité");
-            //System.out.println(c);
-            //System.out.println(part);
-        }
+        c.remove(p.a);
+        c.remove(p.b);
+        c.add(p.m);
+        PartitionModularite pm = new PartitionModularite(c, p.Q);
+
+        System.out.println(p.a);
+        System.out.println(p.b);
+        System.out.println("incrément de modularité :" + (pm.modularite - part));
     }
 
     public void louvain(String filename) {
         PriorityQueue<PartitionModularite> queue = new PriorityQueue<>((PartitionModularite o1, PartitionModularite o2) -> Double.compare(o2.modularite, o1.modularite));
+        double part = Q();
         int size = c.size();
         for (int i = 0; i < size; i++) {
             Paire p;
-            double part;
 
-            part = Q();
             p = transition(part);
 
             if (p == null) {
@@ -118,7 +107,7 @@ public class Partition {
             c.add(p.m);
 
             if (p.Q > part) {
-                queue.add(new PartitionModularite(c, Q(c)));
+                queue.add(new PartitionModularite(c, QMerged(c)));
             }
         }
         PartitionModularite pm = queue.peek();
@@ -145,14 +134,7 @@ public class Partition {
         }
         return false;
     }
-
-    /*private double merge(Paire p) {
-        double mab = (p.a.m + p.b.m) / TP34.g.m;
-        return mab - ((Math.pow(p.a.degrees + p.b.degrees, CARRE)
-                + Math.pow(p.a.degrees, CARRE)
-                + Math.pow(p.b.degrees, CARRE)) / (4 * Math.pow(TP34.g.m, CARRE)));
-    }*/
-
+    
     public void printQueue(PriorityQueue<Paire> queue) {
         Iterator<Paire> iter = queue.iterator();
         while (iter.hasNext()) {
@@ -163,38 +145,32 @@ public class Partition {
     }
 
     public Paire transition(double q) {
-        PriorityQueue<Paire> queue = new PriorityQueue<>((Paire o1, Paire o2) -> Double.compare(o1.Q, o2.Q));
+        PriorityQueue<Paire> queue = new PriorityQueue<>((Paire o1, Paire o2) -> Double.compare(o2.Q, o1.Q));
+
         for (int i = 0; i < c.size(); i++) {
             for (int j = i + 1; j < c.size(); j++) {
-                ArrayList<Cluster> cl = new ArrayList<>(c);
                 Paire p = new Paire(c.get(i), c.get(j));
                 Paire inQueu;
+                double increment;
 
-                cl.remove(p.a);
-                cl.remove(p.b);
-                cl.add(p.m);
+                if (p.m.modu == null) {
+                    modularite(p.m);
+                }
 
                 inQueu = queue.peek();
+                increment = q - p.a.modu - p.b.modu + p.m.modu;
 
                 if (inQueu == null) {
-                    //p.Q = merge(p);
-                    p.Q = Q(cl);
+                    p.Q = increment;
                     queue.offer(p);
                 } else {
-                    //p.Q = merge(p);
-                    p.Q = Q(cl);
+                    p.Q = increment;
                     if (p.Q > inQueu.Q) {
                         queue.poll();
                         queue.offer(p);
                     }
                 }
             }
-        }
-        Iterator<Paire> iter = queue.iterator();
-        while (iter.hasNext() && queue.size() != 1) {
-            iter.next();
-            iter.remove();
-
         }
         return queue.poll();
     }

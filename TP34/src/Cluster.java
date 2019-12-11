@@ -12,8 +12,9 @@ import java.util.Objects;
 public final class Cluster {
 
     public final List<Integer> t;
-    public double modu, degrees, m;
-    public int index;
+    public Double modu = null;
+    public double degrees, m;
+    public boolean tagged = false;
     public final HashMap<Integer, Cluster> voisins = new HashMap<>();
 
     public Cluster(int s) {
