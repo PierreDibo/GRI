@@ -4,13 +4,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * @author Pierre Dibo
@@ -28,6 +26,7 @@ public class TP34 {
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(TP34.class.getName()).log(Level.SEVERE, "Erreur entree/sortie sur" + nomFichier, ex);
+            System.exit(-1);
         } catch (IOException ex) {
             Logger.getLogger(TP34.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -76,6 +75,7 @@ public class TP34 {
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(TP34.class.getName()).log(Level.SEVERE, "Erreur entree/sortie sur" + filename, ex);
+            System.exit(-1);
         } catch (IOException ex) {
             Logger.getLogger(TP34.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -163,17 +163,15 @@ public class TP34 {
     }
 
     public static void faireCluster(String nomFichier, Partition part) {
-        int ligne = 0;
         try ( BufferedReader reader = new BufferedReader(new FileReader(new File(nomFichier)))) {
             for (String line; (line = reader.readLine()) != null;) {
                 String[] strings = line.split("\\s+");
                 List<Integer> clust = Arrays.stream(strings).mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
-                //System.out.println(Arrays.toString(clust));
-                //part.c[ligne++] = new Cluster(clust);
                 part.c.add(new Cluster(clust));
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(TP34.class.getName()).log(Level.SEVERE, "Erreur entree/sortie sur" + nomFichier, ex);
+            System.exit(-1);
         } catch (IOException ex) {
             Logger.getLogger(TP34.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -190,9 +188,6 @@ public class TP34 {
         String algo = args[0];
         String fichierGraphe = args[1];
         String fichierCluster = args[2];
-        /*String fichierGraphe = "facebook_combined.txt";
-        String fichierCluster = "facebook_combined.clu";
-        String algo = "paire";*/
 
         Partition part = new Partition();
         int compteur = compteur(fichierGraphe);
@@ -205,23 +200,19 @@ public class TP34 {
 
         switch (algo) {
             case "modu":
-                //part.c = new Cluster[compteur(fichierCluster)];
                 faireCluster(fichierCluster, part);
                 System.out.println(part.Q());
                 break;
             case "paire":
-                //part.c = new Cluster[compteur(fichierCluster)];
                 faireCluster(fichierCluster, part);
                 part.paire();
                 break;
             case "louvain":
-                //part.c = new Cluster[g.V.length];
                 for (Sommet V : g.V) {
                     if (V.adj != null) {
                         part.c.add(new Cluster(V.num));
                     }
                 }
-                //part.c = c.toArray(Cluster[]::new);
                 part.louvain(fichierCluster);
                 break;
 
@@ -229,8 +220,6 @@ public class TP34 {
                 System.err.println("commande inexistante");
                 break;
         }
-
-        //System.out.println("Mémoire allouée : " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) + " octets");
     }
 
 }

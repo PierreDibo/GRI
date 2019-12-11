@@ -66,9 +66,15 @@ public final class Cluster {
         return Objects.equals(this.t, other.t);
     }
 
+    public String toString2() {
+        return t.toString();
+    }
+
     @Override
     public String toString() {
-        return t.toString();
+        String s = "";
+        s = t.stream().map((i) -> i + " ").reduce(s, String::concat);
+        return s;
     }
 
 }
