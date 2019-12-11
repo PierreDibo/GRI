@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author Pierre Dibo
@@ -20,7 +22,7 @@ public class TP34 {
 
     public static int compteur(String nomFichier) {
         int compteur = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader(new File(nomFichier)))) {
+        try ( BufferedReader reader = new BufferedReader(new FileReader(new File(nomFichier)))) {
             while (reader.readLine() != null) {
                 compteur++;
             }
@@ -34,7 +36,7 @@ public class TP34 {
 
     public static int matrice(Graphe g, String filename, int[][] lus) {
         int l = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader(new File(filename)))) {
+        try ( BufferedReader reader = new BufferedReader(new FileReader(new File(filename)))) {
             while (true) {
                 String line = reader.readLine();
                 if (line == null) // end of file
@@ -162,12 +164,13 @@ public class TP34 {
 
     public static void faireCluster(String nomFichier, Partition part) {
         int ligne = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader(new File(nomFichier)))) {
+        try ( BufferedReader reader = new BufferedReader(new FileReader(new File(nomFichier)))) {
             for (String line; (line = reader.readLine()) != null;) {
                 String[] strings = line.split("\\s+");
                 List<Integer> clust = Arrays.stream(strings).mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
                 //System.out.println(Arrays.toString(clust));
-                part.c[ligne++] = new Cluster(clust);
+                //part.c[ligne++] = new Cluster(clust);
+                part.c.add(new Cluster(clust));
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(TP34.class.getName()).log(Level.SEVERE, "Erreur entree/sortie sur" + nomFichier, ex);
@@ -200,25 +203,34 @@ public class TP34 {
         tableauxAdjacence(g, lus, l);
         deboublonage(g);
 
-        part.c = new Cluster[compteur(fichierCluster)];
-        faireCluster(fichierCluster, part);
-
         switch (algo) {
             case "modu":
+                //part.c = new Cluster[compteur(fichierCluster)];
+                faireCluster(fichierCluster, part);
                 System.out.println(part.Q());
                 break;
             case "paire":
+                //part.c = new Cluster[compteur(fichierCluster)];
+                faireCluster(fichierCluster, part);
                 part.paire();
-                return;
+                break;
             case "louvain":
-                System.err.println("commande non implémentée");
-                return;
+                //part.c = new Cluster[g.V.length];
+                for (Sommet V : g.V) {
+                    if (V.adj != null) {
+                        part.c.add(new Cluster(V.num));
+                    }
+                }
+                //part.c = c.toArray(Cluster[]::new);
+                part.louvain(fichierCluster);
+                break;
+
             default:
                 System.err.println("commande inexistante");
-                return;
+                break;
         }
 
-        System.out.println("Mémoire allouée : " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) + " octets");
+        //System.out.println("Mémoire allouée : " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) + " octets");
     }
 
 }
